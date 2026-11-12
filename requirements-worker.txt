@@ -1,0 +1,2 @@
+# Workers: Spark executors only need numpy (PySpark itself ships with Spark)
+numpy>=1.26,<3

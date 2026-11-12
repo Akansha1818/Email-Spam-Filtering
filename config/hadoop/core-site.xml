@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Rendered by scripts/configure.sh -> $HADOOP_HOME/etc/hadoop/core-site.xml -->
+<configuration>
+  <!-- Every node finds HDFS through the NameNode on the master -->
+  <property><name>fs.defaultFS</name><value>hdfs://@MASTER_IP@:9000</value></property>
+  <property><name>hadoop.tmp.dir</name><value>@BIG@/data/tmp</value></property>
+  <!-- Teammates have different macOS usernames: let everyone act as one user -->
+  <property><name>hadoop.http.staticuser.user</name><value>hadoop</value></property>
+</configuration>

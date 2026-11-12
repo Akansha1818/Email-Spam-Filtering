@@ -1,0 +1,20 @@
+# machine-specific settings
+cluster.env
+
+# datasets (downloaded by scripts/setup-node.sh)
+data/*.zip
+data/*.jsonl
+data/*.csv
+
+# frontend
+frontend/node_modules/
+frontend/dist/
+
+# python
+__pycache__/
+*.pyc
+.venv/
+
+# misc
+.DS_Store
+*.log

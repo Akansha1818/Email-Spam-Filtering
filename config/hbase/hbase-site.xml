@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Rendered by scripts/configure.sh -> $HBASE_HOME/conf/hbase-site.xml
+     "Standalone HBase over HDFS": one lightweight HBase process on the master,
+     but all HBase data files are stored in HDFS (i.e. on the worker DataNodes). -->
+<configuration>
+  <property><name>hbase.cluster.distributed</name><value>false</value></property>
+  <property><name>hbase.rootdir</name><value>hdfs://@MASTER_IP@:9000/hbase</value></property>
+  <property><name>hbase.tmp.dir</name><value>@BIG@/data/hbase-tmp</value></property>
+  <property><name>hbase.zookeeper.property.dataDir</name><value>@BIG@/data/zookeeper</value></property>
+  <property><name>hbase.zookeeper.quorum</name><value>localhost</value></property>
+  <!-- Classic write-ahead-log implementation: most robust with Hadoop 3.3 -->
+  <property><name>hbase.wal.provider</name><value>filesystem</value></property>
+  <property><name>hbase.unsafe.stream.capability.enforce</name><value>false</value></property>
+</configuration>
