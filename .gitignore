@@ -18,3 +18,7 @@ __pycache__/
 # misc
 .DS_Store
 *.log
+
+# Gmail credentials and state (never commit)
+gmail.env
+data/gmail_seen.json

@@ -10,6 +10,7 @@ Also serves the built React app (frontend/dist) at "/".
 
 Run with scripts/run-app.sh
 """
+import imaplib
 import json
 import os
 import struct
@@ -25,6 +26,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from kafka import KafkaConsumer, KafkaProducer, TopicPartition
 from pydantic import BaseModel, Field
+
+from producer import gmail_fetcher
 
 MASTER_IP = os.environ.get("MASTER_IP", "127.0.0.1")
 KAFKA = os.environ.get("KAFKA_BOOTSTRAP", f"{MASTER_IP}:9092")
@@ -111,13 +114,14 @@ def classify(email: EmailIn):
 
 # ------------------------------------------------------------------ history
 @app.get("/api/emails")
-def emails(limit: int = Query(50, le=500), label: str | None = None):
-    scanned = hb(lambda conn: list(conn.table("emails").scan(limit=limit * 4 if label else limit)))
+def emails(limit: int = Query(50, le=500), label: str | None = None, source: str | None = None):
+    filtered = label or source
+    scanned = hb(lambda conn: list(conn.table("emails").scan(limit=limit * 20 if filtered else limit)))
     out = []
     for key, data in scanned:
         row = decode_row(key, data)
         row["body"] = row.get("body", "")[:400]
-        if label and row.get("label") != label:
+        if (label and row.get("label") != label) or (source and row.get("source") != source):
             continue
         out.append(row)
         if len(out) >= limit:
@@ -222,6 +226,26 @@ def cluster():
     except Exception as e:
         out["hbase"] = {"up": False, "error": str(e)}
     return out
+
+
+# ------------------------------------------------------------------ gmail
+@app.get("/api/gmail/status")
+def gmail_status():
+    user = gmail_fetcher.masked_user()
+    return {"configured": user is not None, "user": user}
+
+
+@app.post("/api/gmail/fetch")
+def gmail_fetch(limit: int = Query(10, ge=1, le=50)):
+    """Reads the newest unseen Gmail messages (read-only) and sends them through Kafka."""
+    try:
+        return gmail_fetcher.fetch_and_publish(KAFKA, limit)
+    except gmail_fetcher.GmailNotConfigured as e:
+        raise HTTPException(400, str(e))
+    except imaplib.IMAP4.error as e:
+        raise HTTPException(401, f"Gmail login failed: {e}. Check the App Password in gmail.env.")
+    except Exception as e:
+        raise HTTPException(502, f"Could not fetch from Gmail: {e}")
 
 
 @app.get("/api/health")

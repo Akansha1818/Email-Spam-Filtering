@@ -136,6 +136,19 @@ scripts/run-producer.sh --rate 20 --count 500   # terminal 4: stream emails into
 scripts/status.sh                         # health check at any time
 ```
 
+### 4. Optional: classify your real Gmail inbox
+1. Turn on 2-Step Verification for your Google account, then create an **App Password** at
+   <https://myaccount.google.com/apppasswords>.
+2. On the master, run `cp gmail.env.example gmail.env` and fill in your Gmail address and the
+   16-letter App Password. The file is git-ignored.
+3. Either click **Fetch from Gmail** on the dashboard's *Live Feed* tab, or run:
+   ```bash
+   scripts/run-gmail.sh --limit 10       # newest 10 emails not classified yet
+   scripts/run-gmail.sh --watch 30       # keep checking for new mail every 30 s
+   ```
+The inbox is opened **read-only over IMAP** (`BODY.PEEK`), so nothing is marked as read, moved or deleted.
+Emails go through the same Kafka → Spark → HBase pipeline with `source = gmail`.
+
 **Testing on one Mac:** `LOCAL_WORKER=1 scripts/master-start.sh` also starts a DataNode and a
 Spark Worker on the master. Before switching to the real 3-Mac cluster, run `scripts/reset-cluster.sh`.
 
