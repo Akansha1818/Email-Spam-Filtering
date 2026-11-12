@@ -9,6 +9,8 @@ export SPARK_PUBLIC_DNS=@THIS_IP@
 export SPARK_WORKER_CORES=@WORKER_CORES@
 export SPARK_WORKER_MEMORY=@WORKER_MEMORY@
 export SPARK_DAEMON_MEMORY=512m
+# Laptops on Wi-Fi drop out briefly: wait 3 min (default 1 min) before declaring a worker dead
+export SPARK_MASTER_OPTS="-Dspark.worker.timeout=180"
 
 export PYSPARK_PYTHON=@BIG@/venv/bin/python
 export SPARK_LOG_DIR=@BIG@/logs/spark
